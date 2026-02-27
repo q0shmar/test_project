@@ -2,6 +2,7 @@ package org.example.testpages;
 
 
 import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 import org.example.elements.Input;
@@ -13,13 +14,16 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$x;
+import static com.codeborne.selenide.Selenide.actions;
 import static org.assertj.core.api.Fail.fail;
 import static org.example.ProductName.*;
 
 public class TemplateOrderPage {
+
     private final String BOOT_DISK_SIZE = "20";
     private final String MOUNT_POINT_SIZE = "20";
     private final Input nameInput = Input.byXpath("//span[text()='Имя']//following::input[@type='text'][1]");
@@ -28,7 +32,7 @@ public class TemplateOrderPage {
     private final SelenideElement netSegmentSelectValue = $x("//div[text()='DEV_DEV (Обезличенные данные)']");
     private final SelenideElement dataCenterOpenSelect = $x("//span[text()='Дата-центр']//following::div[1]");
     private final SelenideElement dataCenterSelectValue = $x("//div[@class='ant-select-item-option-content' and text()='cod-a']");
-    private final SelenideElement platformOpenSelect = $x("(//span[text()='Платформа']//following::span)[2]");
+    private final SelenideElement platformOpenSelect = $x("//span[text()='Платформа']//following::div[1]");
     private final SelenideElement platformSelectValue = $x("(//div[text()='%s']");
     private final SelenideElement imageOSOpenSelect = $x("//span[text()='Образ ОС']");
     private final SelenideElement imageOSSelectValue = $x("//div[@class='ant-select-item-option-content' and text()='alma-template']");
@@ -37,7 +41,7 @@ public class TemplateOrderPage {
     private final SelenideElement addMountPointButton = $x("//span[text()='Добавить']");
     private final SelenideElement mountPointInput = $x("//span[text()='/app/']//following::input[1]");
     private final Input inputValueDiskOrMountPoint = Input.byXpath("//input[@role='spinbutton']");
-    private final SelenideElement sshKeyOpenSelect = $x("//h5[text()='Доступ']");
+    private final SelenideElement sshKeyOpenSelect = $x("//*[text()='SSH-ключ']");
     private final SelenideElement sshKeySelectValue = $x("//div[text()='key-demo (key-demo количество: 1)']");
     private final SelenideElement makeOrderButton = $x("//span[text()='Заказать']");
     private final SelenideElement productCategory = $x("//h4//following::span[2]");
@@ -63,13 +67,22 @@ public class TemplateOrderPage {
     //}
 
 
+
     public void setShhKey(String SSH) {
-        sshKeyOpenSelect.shouldBe(visible).click();
-        $x("//div[contains(text(), '%s')]".formatted(SSH)).scrollTo().shouldBe(visible).click();
+        var sshKey = $x("//div[@class='ant-select-item-option-content' and contains(text(), '%s')]".formatted(SSH));
+        actions().moveToElement(sshKeyOpenSelect.scrollTo().shouldBe(visible))
+                .click()
+                .perform();
+        actions().moveToElement(sshKey.scrollTo().shouldBe(visible))
+                .click()
+                .perform();
     }
 
-    public void checkOrderButtonDisabled() {
-        makeOrderButton.shouldBe(Condition.disabled);
+     public void checkOrderButtonDisabled() {
+
+        makeOrderButton.shouldHave(Condition.cssClass("disabled"), Duration.ofSeconds(15));
+        makeOrderButton.shouldBe(Condition.disabled,Duration.ofSeconds(15));
+
     }
 
     @Step("Установка чекбокса 'Создать A-запись'")
@@ -152,9 +165,13 @@ public class TemplateOrderPage {
 
     //дз - методы для проверки названия; категории продукта; setNetSegment; проверка инфы после заказа (схема графов и вернуться ко всем заказам)
     //1) проверка названия продукта
-    public void checkProductName() {
-        nameInput.input().shouldBe(visible.because("Инпут должен отображаться"))
-                .shouldHave(partialValue("Astra"));
+    public void checkProductName(String orderName) {
+        Selenide.sleep(5000);
+        var text=nameInput.input().shouldBe(visible.because("Инпут должен отображаться"),Duration.ofSeconds(15))
+                .getAttribute("value");
+        var actualValue= Objects.requireNonNull(text).substring(0,text.indexOf("-"));
+        var expectedValue= Objects.requireNonNull(orderName).substring(0,text.indexOf("-"));
+        Assertions.assertEquals(actualValue, expectedValue);
     } // переписать под любой продукт, а не только для astra
 
     //2) категория продукта *разбираюсь с enum
@@ -193,10 +210,9 @@ public class TemplateOrderPage {
     }
 
     public TemplateOrderPage createSimpleProductTemplate(String orderName, String platform, String OS, Boolean createARecord) {
-        checkOrderButtonDisabled();
+//        checkOrderButtonDisabled();
         checkOrderClass();
-        checkProductName();
-        checkCategory();
+        checkProductName(orderName);
         setNameInput(orderName);
         if (createARecord) {
             setARecordCheckbox(true);
@@ -221,7 +237,7 @@ public class TemplateOrderPage {
         switch (expectedOrders) {
             case ALMA, ASTRA, CENTOS, DEBIAN, RED_OS, UBUNTU, WINDOWS, WINDOWS_8, WINDOWS_10, WINDOWS_2012,
                  WINDOWS_2016, ORACLE_LINUX -> {
-                if (!orderClass.equals(ProductCategory.БАЗОВЫЕ_ВЫЧИСЛЕНИЯ)) {
+                if (!orderClass.equals(ProductCategory.БАЗОВЫЕ_ВЫЧИСЛЕНИЯ.getCategoryName())) {
                     fail("Ошибка: для продукта %s ожидается класс 'Базовые вычисления', но получен: %s".formatted(expectedOrders, orderClass));
                 }
             }

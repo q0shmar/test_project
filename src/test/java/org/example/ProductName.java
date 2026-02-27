@@ -30,4 +30,5 @@ public interface ProductName {
         String ORACLE_LINUX = "Oracle Linux";
         String STARVAULT = "StarVault";
         String MINIO = "MinIO";
+        String LOKI = "Loki";
 }

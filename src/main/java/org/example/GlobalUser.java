@@ -29,7 +29,7 @@ public class GlobalUser {
     private Role role;
 
     public GlobalUser createObject() {
-        var env = System.getProperty("env", "ift05");
+        var env = System.getProperty("env", "ift07");
         var secretPass = Reader.getProperty("secret");
         var dataFolder = Reader.getProperty("data.folder");
 //        var decryptedFile = AESDecryptor.decryptFile(secretPass, "test_data/%s/secret.bin".formatted(env));

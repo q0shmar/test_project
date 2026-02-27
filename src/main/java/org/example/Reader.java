@@ -20,7 +20,7 @@ public class Reader {
 
     static {
         try {
-            var env = System.getProperty("env", "ift05");
+            var env = System.getProperty("env", "ift07");
             var envPropertiesStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("config/%s.properties".formatted(env));
             if (envPropertiesStream == null) {
                 throw new IllegalStateException("%s.properties не найден в classpath".formatted(env));
