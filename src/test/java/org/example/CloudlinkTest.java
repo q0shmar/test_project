@@ -10,7 +10,7 @@ import java.time.Duration;
 import static com.codeborne.selenide.Selenide.$x;
 
 public class CloudlinkTest {
-    private final String baseUrl = "https://portal.ift05.a2cloud.dev.box/";
+    private final String baseUrl = "https://portal.ift07.a2cloud.dev.box/";
     private final SelenideElement username = $x("//input[@id='username']");
     private final SelenideElement password = $x("//input[@id='password']");
     private final SelenideElement submitButton = $x("//button[@type='submit']");

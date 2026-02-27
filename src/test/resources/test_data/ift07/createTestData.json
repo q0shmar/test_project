@@ -1,0 +1,13 @@
+{
+  "objectClassName": "models.cloud.authorizer.Project",
+  "informationSystem": "d7b0e2e0-dbcc-4750-a856-d1e4ea048783",
+  "projectEnvironmentPrefix": {
+    "projectEnvironmentId": "f2540957-ed6f-4650-aa15-d7676ea54179",
+    "envType": "DEV",
+    "env": "DEVBOX"
+  },
+  "isForOrders": true,
+  "id": "proj-ryuk5wmdb2",
+  "projectName": "qa_mv1",
+  "uuid": "9d50ff12-9029-4fb8-a2e4-115712d0a36e"
+}
